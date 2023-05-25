@@ -11,7 +11,7 @@ namespace StringCalc
 
         public decimal Calc(string input)
         {
-            decimal result = 0;
+            decimal? result = null;
             int step = 0;
             string[] stringNumbers = new string[input.Length];
             List<string> action = new();
@@ -35,35 +35,73 @@ namespace StringCalc
                 }
             }
 
-            decimal[] numbers = new decimal[step + 1];
+            List<decimal> numbers = new();
             for (int i = 0; i <= step; i++)
             {
                 if (!string.IsNullOrEmpty(stringNumbers[i]))
                 {
-                    numbers[i] = decimal.Parse(stringNumbers[i]);
+                    numbers.Add(decimal.Parse(stringNumbers[i]));
                 }
             }
-            result = numbers[0];
-            for (int i = 0; i < action.Count(); i++)
+            List<decimal> numbersTemp = new List<decimal>(numbers);
+            List<string>actionTemp=new List<string>(action);
+            
+            for (int i=0; i <action.Count(); i++)
             {
-                if (action[i] == "+")
+                for (int j = 0; j < actionTemp.Count(); j++)
                 {
-                    result += numbers[i + 1];
-                }
-                if (action[i] == "-")
-                {
-                    result -= numbers[i + 1];
-                }
-                if (action[i] == "*")
-                {
-                    result *= numbers[i + 1];
-                }
-                if (action[i] == "/")
-                {
-                    result /= numbers[i + 1];
+                    if(actionTemp[j] == "*" && j<actionTemp.Count())
+                    {
+                        numbersTemp[j] *= numbersTemp[j + 1];
+                        numbersTemp.RemoveAt(j + 1);
+                        actionTemp.RemoveAt(j);
+                        break;
+                    }
+
+                    if (actionTemp[j] == "/" && j < actionTemp.Count())
+                    {
+                        numbersTemp[j] /= numbersTemp[j + 1];
+                        numbersTemp.RemoveAt(j + 1);
+                        actionTemp.RemoveAt(j);
+                        break;
+                    }
                 }
             }
-            return result;
+
+            if (numbersTemp.Count == 1)
+            {
+                result = numbersTemp[0];
+                return decimal.Parse(result.ToString());
+            }
+            for (int i = 0; i < actionTemp.Count(); i++)
+            {
+                if (actionTemp[i] == "+")
+                {
+                    if (result == null)
+                    {
+                        var x = numbersTemp[i];
+                        var y=numbersTemp[i + 1];
+                        result=numbersTemp[i] + numbersTemp[i + 1];
+                    }
+                    else
+                    {
+                        result += numbersTemp[i + 1];
+                    }
+                }
+                if (actionTemp[i] == "-")
+                {
+                    if (result == null)
+                    {
+                        numbersTemp[i] -= numbersTemp[i + 1];
+                        result = numbersTemp[i];
+                    }
+                    else
+                    {
+                        result -= numbersTemp[i + 1];
+                    }
+                }
+            }
+            return decimal.Parse(result.ToString());
         }
     }
 }
