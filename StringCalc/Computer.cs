@@ -9,7 +9,7 @@ namespace StringCalc
     public class Computer
     {
 
-        public decimal Calc(string input)
+        public decimal PreCalc(string input)
         {
             decimal? result = null;
             int step = 0;
@@ -102,6 +102,51 @@ namespace StringCalc
                 }
             }
             return decimal.Parse(result.ToString());
+        }
+
+        public decimal Calc(string input)
+        {
+            if (!input.Contains('('))
+            {
+                return PreCalc(input);
+            }
+
+
+            var output = string.Empty;
+            var resultString = string.Empty;
+
+            for(int i = 0; i < input.Length; i++)
+            {
+                var outputTemp = string.Empty;
+                if (input[i] == '(')
+                {
+                    outputTemp += input[i];
+                    do
+                    {
+                        i++;
+                        outputTemp += input[i];
+                    }
+                    while (input[i] != ')');
+                    output = outputTemp.Replace("(", "").Replace(")", "");
+
+                    var result = PreCalc(output);
+                    if (string.IsNullOrEmpty(resultString))
+                    {
+                        resultString = input.Replace(outputTemp, result.ToString());
+                    }
+                    else
+                    {
+                        resultString = resultString.Replace(outputTemp, result.ToString());
+                    }
+
+
+                }
+            }
+            //var output = outputTemp.Replace("(","").Replace(")","");
+
+            //var result = PreCalc(output);
+            //output = input.Replace(outputTemp, result.ToString());
+            return PreCalc(resultString);
         }
     }
 }
